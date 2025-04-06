@@ -639,7 +639,11 @@
             let log = null; let useDiaryLayout = false; let useStoryLayout = false;
             // Determine which log to use based on the active game module
             if (currentActiveGameModule === MikaDiary && document.getElementById('diary-chat-log')) { log = document.getElementById('diary-chat-log'); useDiaryLayout = true; }
+            
+            /*
             else if (currentActiveGameModule === StoryTime && document.getElementById('story-display-area')) { log = document.getElementById('story-display-area'); useStoryLayout = true; }
+            */
+            
             else { log = document.getElementById('game-message-log'); } // Fallback to shared log
 
             if (!log) { console.warn("Game message target log not found for:", sender, "- Message:", text); return; }
@@ -652,7 +656,9 @@
             const userNameForDisplay = sanitizeHTML(currentUserName);
 
             if (useDiaryLayout) { MikaDiary.appendDiaryMessage(sender, text); return; } // Diary handles its own append
+            /*
             else if (useStoryLayout) { StoryTime.appendStoryParagraph(sender, text); return; } // Story handles its own append
+            */
             else { // Shared game log
                  if (sender === 'Mika' || sender === 'Kana') { // Assistant message
                     css = 'mika-gamemsg'; // Use the same style class
