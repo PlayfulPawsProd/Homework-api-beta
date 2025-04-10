@@ -110,7 +110,7 @@ const AdviceCorner = (() => {
 
         characterGraphicContainer = _createCharacterGraphic();
         characterGraphicContainer.style.position = 'absolute';
-        characterGraphicContainer.style.bottom = '70px';
+        characterGraphicContainer.style.bottom = '140px';
         characterGraphicContainer.style.zIndex = '2';
         topSection.appendChild(characterGraphicContainer);
 
