@@ -1,5 +1,4 @@
     <!-- Main Application Logic -->
-    <script>
         // Nyaa~! Mika & Kana's Helper & Fun Time App! ♡ (With Notifications!)
 
         // --- DOM Elements ---
@@ -600,4 +599,3 @@
         window.addEventListener('beforeunload', saveAllChats);
 
         // Nyaa~! ♡
-    </script>
