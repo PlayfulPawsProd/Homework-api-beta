@@ -419,7 +419,7 @@ const AdviceCorner = (() => {
     }
 
     async function _callAdviceAPI(userInput) {
-        if (!apiCaller || !currentApiKey) return Promise.reject("API Caller or Key missing");
+        if (!apiCaller) return Promise.reject("API Caller or Key missing");
 
         const contextTurns = adviceHistory.slice(-5); // Send last 5 turns for context
         const apiContext = contextTurns.map(turn => ({
