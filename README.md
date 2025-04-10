@@ -1,2 +1,2 @@
-# Homework-api-beta
-https://playfulpawsprod.github.io/Homework-api-beta/
+# Homework-API
+https://playfulpawsprod.github.io/Homework-API/
