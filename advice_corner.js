@@ -81,7 +81,6 @@ const AdviceCorner = (() => {
         adviceCornerView = characterGraphicContainer = boothContainer = boothSignInOut = adviceMessageBubble = adviceInputArea = adviceTextInput = adviceSendButton = controlsArea = viewCurrentSessionButton = viewLibraryButton = newSessionButton = backToChatButton = statusArea = null;
         charBody = charEarLeft = charEarRight = charEyeLeft = charEyeRight = charTail = null;
         if (bounceAnimation) bounceAnimation.cancel(); bounceAnimation = null;
-        // Also remove the session modal if it exists
         if (currentSessionModalOverlay && currentSessionModalOverlay.parentNode) {
              currentSessionModalOverlay.parentNode.removeChild(currentSessionModalOverlay);
         }
@@ -110,14 +109,14 @@ const AdviceCorner = (() => {
 
         characterGraphicContainer = _createCharacterGraphic();
         characterGraphicContainer.style.position = 'absolute';
-        characterGraphicContainer.style.bottom = '140px';
-        characterGraphicContainer.style.zIndex = '2';
+        characterGraphicContainer.style.bottom = '140px'; // Adjusted height
+        characterGraphicContainer.style.zIndex = '3'; // In front of counter
         topSection.appendChild(characterGraphicContainer);
 
         adviceMessageBubble = document.createElement('div');
         adviceMessageBubble.id = 'advice-message-bubble';
         adviceMessageBubble.style.cssText = `
-            position: absolute; bottom: 130px; left: 50%; transform: translateX(-50%);
+            position: absolute; bottom: 240px; /* Adjusted starting position for higher character */ left: 50%; transform: translateX(-50%);
             color: var(--mika-message-name, #f06292); font-weight: bold; padding: 8px 12px;
             font-size: 1em; text-align: center; opacity: 0;
             transition: opacity 0.4s ease-in-out, bottom 0.4s ease-in-out;
@@ -142,7 +141,7 @@ const AdviceCorner = (() => {
         viewCurrentSessionButton.textContent = 'Current Chat 📜';
         viewCurrentSessionButton.className = 'rps-choice-button secondary';
         viewCurrentSessionButton.title = 'View the log for this advice session';
-        viewCurrentSessionButton.onclick = _showCurrentSessionView; // Updated Function Call
+        viewCurrentSessionButton.onclick = _showCurrentSessionView;
         controlsArea.appendChild(viewCurrentSessionButton);
 
         viewLibraryButton = document.createElement('button');
@@ -195,11 +194,10 @@ const AdviceCorner = (() => {
         gameUiContainer.appendChild(adviceCornerView);
 
         _updateCharacterVisuals();
-        _handleNewSession(); // Starts session, including walk-on animation
+        _handleNewSession();
     }
 
-    // --- Booth/Character Graphics (No changes needed from previous version) ---
-    function _createBoothGraphic() { /* ... No changes ... */
+    function _createBoothGraphic() {
         const booth = document.createElement('div');
         booth.style.cssText = `width: 220px; height: 200px; position: relative; margin: 0 auto; display: flex; flex-direction: column; align-items: center;`;
         const signTop = document.createElement('div'); signTop.id = 'advice-booth-sign-top';
@@ -214,7 +212,8 @@ const AdviceCorner = (() => {
         boothSignInOut = document.createElement('span'); inOutSign.appendChild(boothSignInOut); counter.appendChild(inOutSign); booth.appendChild(counter);
         return booth;
     }
-    function _createCharacterGraphic() { /* ... No changes ... */
+
+    function _createCharacterGraphic() {
         const container = document.createElement('div'); container.id = 'advice-character-graphic';
         container.style.cssText = `width: 80px; height: 100px; position: relative; margin: 0 auto;`;
         const colors = (currentPersonaInGame === 'Kana') ? KANA_COLORS : MIKA_COLORS; const bodySize = 60, earSize = 20, eyeSize = 8, tailWidth = 8, tailHeight = 35;
@@ -228,132 +227,62 @@ const AdviceCorner = (() => {
         bounceAnimation = container.animate([{ transform: 'translateY(0px)' }, { transform: 'translateY(-4px)' }, { transform: 'translateY(0px)' }], { duration: 900 + Math.random() * 200, iterations: Infinity, easing: 'ease-in-out' });
         return container;
     }
-    function _updateCharacterVisuals() { /* ... No changes ... */
+
+    function _updateCharacterVisuals() {
         const colors = (currentPersonaInGame === 'Kana') ? KANA_COLORS : MIKA_COLORS;
         if (charBody) charBody.style.backgroundColor = colors.body; if (charBody) charBody.style.borderColor = colors.accent; if (charEarLeft) charEarLeft.style.borderBottomColor = colors.accent; if (charEarRight) charEarRight.style.borderBottomColor = colors.accent; if (charEyeLeft) charEyeLeft.style.backgroundColor = colors.eyes; if (charEyeRight) charEyeRight.style.backgroundColor = colors.eyes; if (charTail) charTail.style.backgroundColor = colors.accent; if (adviceMessageBubble) { adviceMessageBubble.style.color = (currentPersonaInGame === 'Kana') ? 'var(--kana-popup-border, #b39ddb)' : 'var(--mika-message-name, #f06292)';}
         if(adviceTextInput && !adviceTextInput.disabled) { adviceTextInput.placeholder = (currentPersonaInGame === 'Kana') ? 'State your issue. (type "end" to finish)' : 'Talk to me... (type "end" to finish) ♡';} if(newSessionButton) { newSessionButton.textContent = (currentPersonaInGame === 'Kana') ? 'New Complaint.' : 'New Session? ♡'; } const signTop = document.getElementById('advice-booth-sign-top'); if (signTop) signTop.textContent = (currentPersonaInGame === 'Kana') ? "Kana's Complaints 😒" : "Mika's Advice Corner ♡"; _updateSignInOutSign();
     }
-    function _updateSignInOutSign() { /* ... No changes ... */ if (!boothSignInOut) return; const signText = sessionActive ? `${currentPersonaInGame.toUpperCase()} IS IN` : `${currentPersonaInGame.toUpperCase()} IS OUT`; boothSignInOut.textContent = signText; }
-    function _playWalkOffAnimation(callback) { /* ... No changes ... */ console.log("Playing Walk Off Animation..."); sessionActive = false; _updateSignInOutSign(); if (characterGraphicContainer) { characterGraphicContainer.style.transition = 'opacity 0.5s ease-out, transform 0.5s ease-out'; characterGraphicContainer.style.opacity = '0'; characterGraphicContainer.style.transform = 'translateX(100px)'; } setTimeout(() => { if (characterGraphicContainer) characterGraphicContainer.style.display = 'none'; if (callback) callback(); }, 500); }
-    function _playWalkOnAnimation(callback) { /* ... No changes ... */ console.log("Playing Walk On Animation..."); if (characterGraphicContainer) { characterGraphicContainer.style.display = 'block'; characterGraphicContainer.style.opacity = '0'; characterGraphicContainer.style.transform = 'translateX(-100px)'; void characterGraphicContainer.offsetWidth; characterGraphicContainer.style.transition = 'opacity 0.5s ease-in, transform 0.5s ease-in'; characterGraphicContainer.style.opacity = '1'; characterGraphicContainer.style.transform = 'translateX(0)'; } setTimeout(() => { sessionActive = true; _updateSignInOutSign(); if (callback) callback(); }, 500); }
+
+    function _updateSignInOutSign() { if (!boothSignInOut) return; const signText = sessionActive ? `${currentPersonaInGame.toUpperCase()} IS IN` : `${currentPersonaInGame.toUpperCase()} IS OUT`; boothSignInOut.textContent = signText; }
+    function _playWalkOffAnimation(callback) { console.log("Playing Walk Off Animation..."); sessionActive = false; _updateSignInOutSign(); if (characterGraphicContainer) { characterGraphicContainer.style.transition = 'opacity 0.5s ease-out, transform 0.5s ease-out'; characterGraphicContainer.style.opacity = '0'; characterGraphicContainer.style.transform = 'translateX(100px)'; } setTimeout(() => { if (characterGraphicContainer) characterGraphicContainer.style.display = 'none'; if (callback) callback(); }, 500); }
+    function _playWalkOnAnimation(callback) { console.log("Playing Walk On Animation..."); if (characterGraphicContainer) { characterGraphicContainer.style.display = 'block'; characterGraphicContainer.style.opacity = '0'; characterGraphicContainer.style.transform = 'translateX(-100px)'; void characterGraphicContainer.offsetWidth; characterGraphicContainer.style.transition = 'opacity 0.5s ease-in, transform 0.5s ease-in'; characterGraphicContainer.style.opacity = '1'; characterGraphicContainer.style.transform = 'translateX(0)'; } setTimeout(() => { sessionActive = true; _updateSignInOutSign(); if (callback) callback(); }, 500); }
 
     // --- Session & Chat Logic ---
-    function _setLoadingState(isLoading) { /* ... No changes ... */
+    function _setLoadingState(isLoading) {
         isGenerating = isLoading; if (statusArea) { statusArea.textContent = isLoading ? `${currentPersonaInGame} is thinking...` : ''; statusArea.style.display = isLoading ? 'block' : 'none'; } if (adviceTextInput) { adviceTextInput.disabled = isLoading || !sessionActive; if(!sessionActive) { adviceTextInput.placeholder = `${currentPersonaInGame} is away...`;} else if (isLoading) { adviceTextInput.placeholder = `${currentPersonaInGame} is thinking...`;} else { adviceTextInput.placeholder = (currentPersonaInGame === 'Kana') ? 'State your issue. (type "end" to finish)' : 'Talk to me... (type "end" to finish) ♡'; } } if (adviceSendButton) adviceSendButton.disabled = isLoading || !sessionActive; if (viewCurrentSessionButton) viewCurrentSessionButton.disabled = isLoading; if (viewLibraryButton) viewLibraryButton.disabled = isLoading; if (newSessionButton) newSessionButton.disabled = isLoading; if (backToChatButton) backToChatButton.disabled = isLoading; if (bounceAnimation) isLoading ? bounceAnimation.pause() : bounceAnimation.play();
     }
-    async function _handleUserInput() { /* ... No changes ... */
+
+    async function _handleUserInput() {
         if (!sessionActive || isGenerating || !adviceTextInput || !adviceTextInput.value.trim()) { return; } const userText = adviceTextInput.value.trim(); adviceTextInput.value = ''; _setLoadingState(true); adviceHistory.push({ sender: 'User', text: userText }); if (adviceHistory.length > MAX_SESSION_HISTORY) { adviceHistory.shift(); } if (userText.toLowerCase() === 'end') { console.log("User initiated end session."); await _handleEndSession(true); _setLoadingState(false); return; } try { const responseText = await _callAdviceAPI(userText); if (responseText) { adviceHistory.push({ sender: currentPersonaInGame, text: responseText }); _displayAdviceBubble(responseText); } else { _displayAdviceBubble(currentPersonaInGame === 'Kana' ? '...' : '*confused mrow?*'); } } catch (error) { console.error("Error getting advice response:", error); _displayAdviceBubble(currentPersonaInGame === 'Kana' ? 'Error.' : 'Mrow?'); } finally { _setLoadingState(false); }
     }
-    async function _callAdviceAPI(userInput) { /* ... No changes ... */
+
+    async function _callAdviceAPI(userInput) {
         if (!apiCaller) return Promise.reject("API Caller missing"); const contextTurns = adviceHistory.slice(-5); const apiContext = contextTurns.map(turn => ({ role: (turn.sender === 'User') ? 'user' : 'model', parts: [{ text: turn.text }] })); const personaPromptPart = (currentPersonaInGame === 'Kana') ? `You are Kana, sitting in your 'Complaints Booth'. ${currentUserName} is talking to you.` : `You are Mika, sitting in your 'Advice Corner'. Your best friend ${currentUserName} is talking to you.`; const prompt = `[ROLE: ${personaPromptPart} Maintain your core personality (sarcastic/grumpy for Kana, bubbly/playful for Mika). Respond directly to their last message: "${userInput}". Keep your response very short, suitable for a brief speech bubble (max 1-2 sentences). Do NOT offer life advice unless specifically asked. Focus on conversational interaction. Output only the response text.]`; try { const response = await callMikaApiForApp(prompt, apiContext); return response; } catch (error) { console.error("Advice API call failed:", error); return null; }
     }
-    function _displayAdviceBubble(text) { /* ... No changes ... */
-        if (!adviceMessageBubble) return; const cleanText = _sanitizeHTML(text); adviceMessageBubble.innerHTML = cleanText; adviceMessageBubble.style.color = (currentPersonaInGame === 'Kana') ? 'var(--kana-popup-border, #b39ddb)' : 'var(--mika-message-name, #f06292)'; requestAnimationFrame(() => { adviceMessageBubble.style.bottom = '145px'; adviceMessageBubble.style.opacity = '1'; }); if (adviceMessageBubble.fadeTimeout) clearTimeout(adviceMessageBubble.fadeTimeout); adviceMessageBubble.fadeTimeout = setTimeout(() => { if (adviceMessageBubble) { adviceMessageBubble.style.opacity = '0'; adviceMessageBubble.style.bottom = '130px'; } }, MESSAGE_BUBBLE_DURATION_MS);
+
+    function _displayAdviceBubble(text) {
+        if (!adviceMessageBubble) return; const cleanText = _sanitizeHTML(text); adviceMessageBubble.innerHTML = cleanText; adviceMessageBubble.style.color = (currentPersonaInGame === 'Kana') ? 'var(--kana-popup-border, #b39ddb)' : 'var(--mika-message-name, #f06292)'; requestAnimationFrame(() => { adviceMessageBubble.style.bottom = '245px'; /* Adjust bubble Y pos based on character graphic Y pos */ adviceMessageBubble.style.opacity = '1'; }); if (adviceMessageBubble.fadeTimeout) clearTimeout(adviceMessageBubble.fadeTimeout); adviceMessageBubble.fadeTimeout = setTimeout(() => { if (adviceMessageBubble) { adviceMessageBubble.style.opacity = '0'; adviceMessageBubble.style.bottom = '240px'; /* Reset position */ } }, MESSAGE_BUBBLE_DURATION_MS);
     }
-    async function _handleEndSession(userInitiated = false) { /* ... No changes ... */
-        if (!sessionActive) return; _setLoadingState(true); await new Promise(resolve => _playWalkOffAnimation(resolve)); if (adviceHistory.length > 1) { await _saveSessionToLibrary(); } else { console.log("Session ended with no meaningful interaction, not saving library."); } if (newSessionButton) newSessionButton.style.display = 'inline-block'; if (adviceInputArea) adviceInputArea.style.display = 'none'; if (viewCurrentSessionButton) viewCurrentSessionButton.disabled = true; _setLoadingState(false); console.log("Advice session ended."); if (userInitiated && messageCallback) { messageCallback('System', `${currentPersonaInGame} ended the advice session.`); }
+
+    async function _handleEndSession(userInitiated = false) {
+        if (!sessionActive) return; _setLoadingState(true); await new Promise(resolve => _playWalkOffAnimation(resolve)); if (adviceHistory.length > 1) { await _saveSessionToLibrary(); } else { console.log("Session ended with no meaningful interaction, not saving library."); } if (newSessionButton) newSessionButton.style.display = 'inline-block';
+        // *** MODIFICATION: Keep input area visible, just disable input ***
+        if (adviceTextInput) adviceTextInput.disabled = true;
+        if (adviceSendButton) adviceSendButton.disabled = true;
+        // *** END MODIFICATION ***
+        if (viewCurrentSessionButton) viewCurrentSessionButton.disabled = true; _setLoadingState(false); console.log("Advice session ended."); if (userInitiated && messageCallback) { messageCallback('System', `${currentPersonaInGame} ended the advice session.`); }
     }
-    function _handleNewSession() { /* ... No changes ... */
-        if (sessionActive || isGenerating) return; _setLoadingState(true); adviceHistory = [{ sender: 'System', text: '[Session Start]' }]; if (newSessionButton) newSessionButton.style.display = 'none'; if (adviceInputArea) adviceInputArea.style.display = 'flex'; if (viewCurrentSessionButton) viewCurrentSessionButton.disabled = false; _playWalkOnAnimation(() => { _setLoadingState(false); if (messageCallback) { messageCallback('System', `${currentPersonaInGame} is ready for advice!`); } console.log("New advice session started."); });
+
+    function _handleNewSession() {
+        if (sessionActive || isGenerating) return; _setLoadingState(true); adviceHistory = [{ sender: 'System', text: '[Session Start]' }]; if (newSessionButton) newSessionButton.style.display = 'none';
+        // *** MODIFICATION: Ensure input area is visible ***
+        if (adviceInputArea) adviceInputArea.style.display = 'flex';
+        // *** END MODIFICATION ***
+        if (viewCurrentSessionButton) viewCurrentSessionButton.disabled = false; _playWalkOnAnimation(() => { _setLoadingState(false); if (messageCallback) { messageCallback('System', `${currentPersonaInGame} is ready for advice!`); } console.log("New advice session started."); });
     }
-    async function _generateSessionTitle() { /* ... No changes ... */
+
+    async function _generateSessionTitle() {
         if (!apiCaller || adviceHistory.length <= 1) return null; const firstUserMessage = adviceHistory.find(t => t.sender === 'User')?.text.substring(0, 100) || "a chat"; const lastAssistantMessage = [...adviceHistory].reverse().find(t => t.sender !== 'User')?.text.substring(0, 100) || "some advice"; const contextSummary = `The user started by saying something like "${firstUserMessage}..." and the session ended after the assistant said "${lastAssistantMessage}...".`; const prompt = `[ROLE: You are a creative title generator.] Generate a short, catchy title (4-8 words max) for an advice chat session. The GM was ${currentPersonaInGame}. ${contextSummary} Make the title reflect the persona (${currentPersonaInGame === 'Kana' ? 'sarcastic/dry' : 'cute/playful'}). Output only the title text, no extra characters or quotes.`; try { const titleResponse = await callMikaApiForApp(prompt); if (titleResponse) { let cleanTitle = titleResponse.replace(/["'*]/g, '').trim(); cleanTitle = cleanTitle.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '); if (cleanTitle.length > 0 && cleanTitle.length < 80) { console.log("Generated advice session title:", cleanTitle); return cleanTitle; } } console.warn("Generated advice title was invalid or empty:", titleResponse); } catch (error) { console.error("API call for advice title failed:", error); } return `Advice: ${firstUserMessage.substring(0, 20)}...`;
     }
-    async function _saveSessionToLibrary() { /* ... No changes ... */
-        if (adviceHistory.length <= 1) return; const title = await _generateSessionTitle() || `Advice Session (${_formatDateForDisplay(_getCurrentTimestamp())})`; const sessionLog = { title: title, timestamp: _getCurrentTimestamp(), history: [...adviceHistory], persona: currentPersonaInGame }; adviceLibrary.push(sessionLog); _saveLibrary(); if (messageCallback) messageCallback('System', `Advice session "${title}" saved to log!`);
-    }
+    async function _saveSessionToLibrary() { if (adviceHistory.length <= 1) return; const title = await _generateSessionTitle() || `Advice Session (${_formatDateForDisplay(_getCurrentTimestamp())})`; const sessionLog = { title: title, timestamp: _getCurrentTimestamp(), history: [...adviceHistory], persona: currentPersonaInGame }; adviceLibrary.push(sessionLog); _saveLibrary(); if (messageCallback) messageCallback('System', `Advice session "${title}" saved to log!`); }
 
     // --- History/Library Viewing ---
-
-    // *** NEW: Function to show current session in a modal ***
     function _showCurrentSessionView() {
-        if (adviceHistory.length <= 1) {
-            alert("No conversation yet in this session!"); // Keep alert for empty case
-            return;
-        }
-        _closeCurrentSessionModal(); // Close previous modal if open
-
-        // Create Modal Structure
-        currentSessionModalOverlay = document.createElement('div');
-        currentSessionModalOverlay.id = 'advice-session-modal-overlay';
-        currentSessionModalOverlay.className = 'popup-overlay'; // Reuse existing CSS
-        currentSessionModalOverlay.style.display = 'flex'; // Show it
-        currentSessionModalOverlay.onclick = (e) => { // Close on overlay click
-            if (e.target === currentSessionModalOverlay) {
-                _closeCurrentSessionModal();
-            }
-        };
-
-        const modal = document.createElement('div');
-        modal.className = 'popup-modal'; // Reuse existing CSS
-        modal.style.textAlign = 'left'; // Align text left
-        modal.style.maxHeight = '70vh'; // Limit height further
-        modal.style.minWidth = '80%'; // Make it wider
-        modal.onclick = (e) => e.stopPropagation(); // Prevent closing when clicking inside modal
-
-        const title = document.createElement('h2');
-        // Persona-specific title
-        title.textContent = (currentPersonaInGame === 'Kana') ? "Ugh... Current Complaints Log..." : "Our Current Chat! ♡";
-        title.style.textAlign = 'center'; // Center title
-        modal.appendChild(title);
-
-        const contentArea = document.createElement('div');
-        contentArea.style.cssText = `margin-top: 15px; margin-bottom: 15px; padding-right: 10px; /* Space for scrollbar */ max-height: calc(70vh - 150px); /* Adjust based on title/button space */ overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);`;
-
-        // Populate with history
-        adviceHistory.forEach(turn => {
-            if (turn.sender === 'System') return; // Skip placeholder
-
-            const turnP = document.createElement('p');
-            const cleanText = _sanitizeHTML(turn.text).replace(/(?<!<br>)\n/g, '<br>');
-            const senderName = (turn.sender === 'User') ? currentUserName : turn.sender;
-            const isUser = turn.sender === 'User';
-
-            turnP.style.cssText = `
-                margin-bottom: 8px;
-                padding: 6px 10px;
-                border-radius: 8px;
-                max-width: 85%;
-                word-wrap: break-word;
-                line-height: 1.4;
-                ${isUser ?
-                    'background-color: rgba(var(--user-message-text-rgb), 0.15); margin-left: auto; text-align: right;' :
-                    'background-color: rgba(var(--mika-message-text-rgb, 255, 172, 209), 0.15); margin-right: auto; text-align: left;' /* Added fallback RGB */
-                }
-            `;
-            // Define --mika-message-text-rgb in CSS if needed: --mika-message-text-rgb: 255, 172, 209;
-
-            turnP.innerHTML = `<strong>${senderName}:</strong> ${cleanText}`;
-            contentArea.appendChild(turnP);
-        });
-        modal.appendChild(contentArea);
-
-        const buttonContainer = document.createElement('div');
-        buttonContainer.className = 'popup-buttons'; // Reuse existing CSS
-        const closeButton = document.createElement('button');
-        closeButton.textContent = 'Close';
-        closeButton.className = 'popup-button secondary'; // Reuse existing CSS
-        closeButton.onclick = _closeCurrentSessionModal;
-        buttonContainer.appendChild(closeButton);
-        modal.appendChild(buttonContainer);
-
-        currentSessionModalOverlay.appendChild(modal);
-        document.body.appendChild(currentSessionModalOverlay); // Append to body to overlay everything
-        contentArea.scrollTop = contentArea.scrollHeight; // Scroll to bottom
+         if(adviceHistory.length <= 1) { alert("No conversation yet in this session!"); return; } _closeCurrentSessionModal(); currentSessionModalOverlay = document.createElement('div'); currentSessionModalOverlay.id = 'advice-session-modal-overlay'; currentSessionModalOverlay.className = 'popup-overlay'; currentSessionModalOverlay.style.display = 'flex'; currentSessionModalOverlay.onclick = (e) => { if (e.target === currentSessionModalOverlay) { _closeCurrentSessionModal(); } }; const modal = document.createElement('div'); modal.className = 'popup-modal'; modal.style.textAlign = 'left'; modal.style.maxHeight = '70vh'; modal.style.minWidth = '80%'; modal.onclick = (e) => e.stopPropagation(); const title = document.createElement('h2'); title.textContent = (currentPersonaInGame === 'Kana') ? "Ugh... Current Complaints Log..." : "Our Current Chat! ♡"; title.style.textAlign = 'center'; modal.appendChild(title); const contentArea = document.createElement('div'); contentArea.style.cssText = `margin-top: 15px; margin-bottom: 15px; padding-right: 10px; max-height: calc(70vh - 150px); overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);`; adviceHistory.forEach(turn => { if (turn.sender === 'System') return; const turnP = document.createElement('p'); const cleanText = _sanitizeHTML(turn.text).replace(/(?<!<br>)\n/g, '<br>'); const senderName = (turn.sender === 'User') ? currentUserName : turn.sender; const isUser = turn.sender === 'User'; turnP.style.cssText = ` margin-bottom: 8px; padding: 6px 10px; border-radius: 8px; max-width: 85%; word-wrap: break-word; line-height: 1.4; ${isUser ? 'background-color: rgba(var(--user-message-text-rgb), 0.15); margin-left: auto; text-align: right;' : 'background-color: rgba(var(--mika-message-text-rgb, 255, 172, 209), 0.15); margin-right: auto; text-align: left;' } `; turnP.innerHTML = `<strong>${senderName}:</strong> ${cleanText}`; contentArea.appendChild(turnP); }); modal.appendChild(contentArea); const buttonContainer = document.createElement('div'); buttonContainer.className = 'popup-buttons'; const closeButton = document.createElement('button'); closeButton.textContent = 'Close'; closeButton.className = 'popup-button secondary'; closeButton.onclick = _closeCurrentSessionModal; buttonContainer.appendChild(closeButton); modal.appendChild(buttonContainer); currentSessionModalOverlay.appendChild(modal); document.body.appendChild(currentSessionModalOverlay); contentArea.scrollTop = contentArea.scrollHeight;
     }
 
-    function _closeCurrentSessionModal() {
-        if (currentSessionModalOverlay) {
-            currentSessionModalOverlay.style.display = 'none';
-            // Optional: Remove from DOM if created dynamically each time
-            if (currentSessionModalOverlay.parentNode) {
-                currentSessionModalOverlay.parentNode.removeChild(currentSessionModalOverlay);
-            }
-            currentSessionModalOverlay = null;
-        }
-    }
-
-    // --- Library List/Detail (No changes needed from previous version) ---
+    function _closeCurrentSessionModal() { if (currentSessionModalOverlay) { currentSessionModalOverlay.style.display = 'none'; if (currentSessionModalOverlay.parentNode) { currentSessionModalOverlay.parentNode.removeChild(currentSessionModalOverlay); } currentSessionModalOverlay = null; } }
     function _createLibraryListView() { /* ... No changes ... */
         _clearUI(); currentView = 'library_list'; const libraryView = document.createElement('div'); libraryView.className = 'library-view'; libraryView.style.cssText = `width: 100%; height: 100%; display: flex; flex-direction: column;`; const title = document.createElement('h2'); title.textContent = 'Advice Session Log 📚'; title.className = 'library-title'; libraryView.appendChild(title); const backButton = document.createElement('button'); backButton.textContent = '← Back to Advice Corner'; backButton.className = 'rps-choice-button secondary library-back-button'; backButton.onclick = _createMainUI; libraryView.appendChild(backButton); const listContainer = document.createElement('div'); listContainer.id = 'advice-library-list-container'; listContainer.style.cssText = `flex-grow: 1; overflow-y: auto; margin-top: 10px;`; libraryView.appendChild(listContainer); gameUiContainer.appendChild(libraryView); _renderHistoryList(listContainer);
     }
