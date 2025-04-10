@@ -1,4 +1,3 @@
-    <!-- Main Application Logic -->
         // Nyaa~! Mika & Kana's Helper & Fun Time App! ♡ (With Notifications!)
 
         // --- DOM Elements ---
