@@ -110,8 +110,8 @@ const AdviceCorner = (() => {
 
         characterGraphicContainer = _createCharacterGraphic();
         characterGraphicContainer.style.position = 'absolute';
-        characterGraphicContainer.style.bottom = '45px';
-        characterGraphicContainer.style.zIndex = '1';
+        characterGraphicContainer.style.bottom = '70px';
+        characterGraphicContainer.style.zIndex = '2';
         topSection.appendChild(characterGraphicContainer);
 
         adviceMessageBubble = document.createElement('div');
